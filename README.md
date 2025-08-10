@@ -1,2 +1,2 @@
-# hinge-bingo-card
+# Hinge Bingo Card
 Unhinged Hinge Bingo Card
