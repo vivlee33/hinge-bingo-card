@@ -6,25 +6,33 @@
 <title>Bingo Card Generator</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
-    margin: 8px;
-    background: #f9f9f9;
+  font-family: Arial, sans-serif;
+  margin: 8px;
+  background: #f9f9f9;
+  
+  /* Add these lines: */
+  display: flex;
+  justify-content: center;  /* horizontally center */
+  /* optional: align-items: center;  vertically center if you want */
+  min-height: 100vh;         /* make body full height */
+  flex-direction: column;    /* stack children vertically */
   }
   h1 {
     text-align: center;
   }
   #bingo {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    max-width: 400px;
-    margin: 12px auto;
+  display: grid;
+  grid-template-columns: repeat(5, 200px);
+  gap: 6px;
+  /* remove max-width or set to fit content */
+  /* max-width: max-content; */
+  margin: 12px 0;  /* vertical spacing only, no auto on sides */
   }
   .cell {
   background: white;
   border: 2px solid #444;
   border-radius: 6px;
-  height: 150px;      /* fixed height */
+  height: 120px;      /* fixed height */
   width: 200px;       /* fixed width */
   display: flex;
   align-items: center;
