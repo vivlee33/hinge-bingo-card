@@ -19,12 +19,42 @@
     gap: 20px;
     flex-wrap: wrap;
   }
+  #bingoWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto; /* optional: allows horizontal scroll on extremely small screens */
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+
+#bingo {
+  grid-template-columns: repeat(5, 180px);
+  grid-template-rows: repeat(5, 100px);
+  gap: 6px;
+  /* keep width/height from cells, no fixed width here */
+  display: grid;
+  justify-content: center;
+  /* Allow scaling for mobile */
+  transform-origin: top center;
+}
+
+/* Scale down the bingo grid on smaller widths */
+@media (max-width: 1000px) {
   #bingo {
-    display: grid;
-    grid-template-columns: repeat(5, 180px);
-    grid-template-rows: repeat(5, 100px);
-    gap: 6px;
-    justify-content: center;
+    transform: scale(0.8);
+  }
+}
+@media (max-width: 700px) {
+  #bingo {
+    transform: scale(0.6);
+  }
+}
+@media (max-width: 400px) {
+  #bingo {
+    transform: scale(0.45);
+  }
+}
   }
   .cell {
     background: white;
@@ -136,7 +166,10 @@
 
 <div class="container">
   <div>
-    <div id="bingo"></div>
+    <div id="bingoWrapper">
+      <div id="bingo"></div>
+    </div>
+
     <div id="controls">
       <button id="randomizeBtn">Randomize</button>
       <button id="clearBtn">Clear</button>
