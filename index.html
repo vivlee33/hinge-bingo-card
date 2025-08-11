@@ -6,43 +6,39 @@
 <title>Bingo Card Generator</title>
 <style>
   body {
-  font-family: Arial, sans-serif;
-  margin: 8px;
-  background: #f9f9f9;
-  
-  /* Add these lines: */
-  display: flex;
-  justify-content: center;  /* horizontally center */
-  /* optional: align-items: center;  vertically center if you want */
-  min-height: 100vh;         /* make body full height */
-  flex-direction: column;    /* stack children vertically */
+    font-family: Arial, sans-serif;
+    margin: 8px;
+    background: #f9f9f9;
+  }
+  #container {
+    max-width: 1080px; /* max width of container */
+    margin: 0 auto;    /* centers horizontally */
+    padding: 0 12px;   /* small horizontal padding */
   }
   h1 {
     text-align: center;
   }
   #bingo {
-  display: grid;
-  grid-template-columns: repeat(5, 200px);
-  gap: 6px;
-  /* remove max-width or set to fit content */
-  /* max-width: max-content; */
-  margin: 12px 0;  /* vertical spacing only, no auto on sides */
+    display: grid;
+    grid-template-columns: repeat(5, 200px);
+    gap: 6px;
+    margin: 12px 0;
   }
   .cell {
-  background: white;
-  border: 2px solid #444;
-  border-radius: 6px;
-  height: 150px;      /* fixed height */
-  width: 200px;       /* fixed width */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 6px;
-  user-select: none;
-  font-size: 14px;
-  cursor: pointer;
-  position: relative;
+    background: white;
+    border: 2px solid #444;
+    border-radius: 6px;
+    width: 150px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6px;
+    user-select: none;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
   }
   .cell.free {
     background: #a3d2ca;
@@ -109,52 +105,31 @@
   #addWordBtn:hover {
     background: #357a38;
   }
-  /* NEW: Word list styling */
-  #wordList {
-    max-width: 400px;
-    margin: 12px auto 24px auto;
-    font-size: 14px;
-    color: #333;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 8px;
-    border-radius: 6px;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  #wordList h3 {
-    margin-top: 0;
-    text-align: center;
-  }
 </style>
 </head>
 <body>
 <h1>Bingo Card Generator</h1>
 
-<div id="bingo"></div>
+<div id="container">
+  <div id="bingo"></div>
 
-<div id="controls">
-  <button id="randomizeBtn">Randomize</button>
-  <button id="clearBtn">Clear</button>
-  <div>
-    <label>
-      <input type="checkbox" id="manualFillToggle" />
-      Manual Fill Mode (tap a cell to select word)
-    </label>
+  <div id="controls">
+    <button id="randomizeBtn">Randomize</button>
+    <button id="clearBtn">Clear</button>
+    <div>
+      <label>
+        <input type="checkbox" id="manualFillToggle" />
+        Manual Fill Mode (tap a cell to select word)
+      </label>
+    </div>
   </div>
-</div>
 
-<div id="addWordContainer">
-  <input type="text" id="newWordInput" placeholder="Add a new word..." />
-  <button id="addWordBtn">Add Word</button>
-</div>
+  <div id="addWordContainer">
+    <input type="text" id="newWordInput" placeholder="Add a new word..." />
+    <button id="addWordBtn">Add Word</button>
+  </div>
 
-<div id="wordCount"></div>
-
-<!-- NEW: Word List Display -->
-<div id="wordList">
-  <h3>Word List</h3>
-  <div id="wordDisplay"></div>
+  <div id="wordCount"></div>
 </div>
 
 <script>
@@ -169,7 +144,7 @@
     "Job: Finance/VC",
     "Job: Not listed",
     "IG/Snap in bio",
-    "Has kids (bonus if he says “I’m a single dad”)",
+    "Has kids (Bonus if he says “I’m a single dad”)",
     "Smokes weed",
     "College: Any UC",
     "College Stanford",
@@ -182,29 +157,29 @@
     "Picture: Gym flex",
     "Picture: Shirtless in bathroom",
     "Picture: Hat-fishing",
-    "Picture: Distant / Dark/ Can’t see face / Blurry",
-    "Picture: Angel wing background",
+    "Picture: Distant / Dark / Can’t see face / Blurry",
+    "Picture: Angel wing photo",
     "Picture: Cropped out photo",
     "Picture: Car",
     "Picture: Mullet",
     "Picture: Meme",
-    "Picture: Drunk / Hungover/ Throwing up",
+    "Picture: Drunk / Hungover / Throwing up",
     "Picture: Golden gate bridge",
     "Picture: Group photo where you can’t tell who he is",
     "Picture: Wedding guest photo",
     "Picture: Sunglasses",
-    "Picture: Hiking / Mountain / Rock Climbing",
-    "Picture: Patagonia Jacket",
-    "Picture: Coachella",
+    "Picture: Hiking / mountain / rock climbing",
+    "Picture: Patagonia jacket",
     "Picture: Japan",
+    "Picture: Coachella",
     "Love language: Acts of service",
     "Love language: Physical touch",
     "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
-    "Looking for: Something serious/long-term but open",
+    "Looking for: Something serious / long-term but open",
     "Looking for: Athletic woman",
-    "Looking for: Caring/kind/understanding",
+    "Looking for: Caring / kind / understanding",
     "All that I ask is: that you’re honest",
-    "Worst idea / most spontaneous thing I’ve done / etc: Joining Hinge",
+    "Worst idea / Most spontaneous thing I’ve done / etc: Joining Hinge",
     "I'll fall for you if: You trip me (up)",
     "Controversial opinion: Pineapple on pizza",
     "I get overly competitive about: Everything",
@@ -250,7 +225,7 @@
     "Sports: Baseball",
     "Cliches: Coffee is their personality",
     "Cliches: Writes an essay for a prompt",
-    "Cliches: Someone in the room recognizes / knows him",
+    "Cliches: Someone in the room recognizes/knows him",
     "Cliches: Empty profile",
     "Cliches: Just moved here / new in town",
     "Cliches: Just got out of a long-term relationship",
@@ -331,20 +306,20 @@
   }
 
   function clearGrid(){
-    for(let cell of cells){
-      if(cell.classList.contains('free')){
-        cell.textContent = "FREE";
-        cell.dataset.marked = 'false';
-        cell.style.backgroundColor = '#a3d2ca';
-        cell.classList.remove('marked');
-      } else {
-        cell.textContent = '';
-        cell.dataset.marked = 'false';
-        cell.style.backgroundColor = '';
-        cell.classList.remove('marked');
-      }
+  for(let cell of cells){
+    if(cell.classList.contains('free')){
+      cell.textContent = "FREE";
+      cell.dataset.marked = 'false';
+      cell.style.backgroundColor = '#a3d2ca';
+      cell.classList.remove('marked');
+    } else {
+      cell.textContent = '';
+      cell.dataset.marked = 'false';
+      cell.style.backgroundColor = '';
+      cell.classList.remove('marked');
     }
   }
+}
 
   function onCellClick(cell){
     if(manualFillMode){
@@ -390,7 +365,6 @@
       if(val && !words.includes(val)){
         words.push(val);  // add new words typed manually
         updateWordCount();
-        updateWordList();
       }
       cell.removeChild(select);
       cell.textContent = val;
@@ -406,17 +380,11 @@
     wordCountDisplay.textContent = `Word list contains ${words.length} words.`;
   }
 
-  // NEW: updateWordList function to display the word list live
-  function updateWordList() {
-    document.getElementById("wordDisplay").innerHTML = words.join("<br>");
-  }
-
   addWordBtn.onclick = () => {
     const val = newWordInput.value.trim();
     if(val && !words.includes(val)){
       words.push(val);
       updateWordCount();
-      updateWordList();
       newWordInput.value = '';
       alert(`Added "${val}" to the word list!`);
     } else if(words.includes(val)){
@@ -431,11 +399,9 @@
   // Initialize
   createGrid();
   updateWordCount();
-  updateWordList();
 
   randomizeBtn.onclick = () => randomFill();
   clearBtn.onclick = () => clearGrid();
 </script>
 </body>
 </html>
-
