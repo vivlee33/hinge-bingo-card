@@ -1,407 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bingo Card Generator</title>
+<meta charset="UTF-8">
+<title>Bingo Board</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 8px;
-    background: #f9f9f9;
-  }
-  #container {
-    max-width: 1080px; /* max width of container */
-    margin: 0 auto;    /* centers horizontally */
-    padding: 0 12px;   /* small horizontal padding */
-  }
-  h1 {
-    text-align: center;
-  }
-  #bingo {
-    display: grid;
-    grid-template-columns: repeat(5, 200px);
-    gap: 6px;
-    margin: 12px 0;
-  }
-  .cell {
-    background: white;
-    border: 2px solid #444;
-    border-radius: 6px;
-    width: 150px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6px;
-    user-select: none;
-    font-size: 14px;
-    cursor: pointer;
-    position: relative;
-  }
-  .cell.free {
-    background: #a3d2ca;
-    font-weight: bold;
-    cursor: default;
-  }
-  .cell.marked {
-    background: #ffb703;
-    color: white;
-  }
-  #controls {
-    text-align: center;
-    margin: 16px 0;
-  }
-  button {
-    font-size: 16px;
-    padding: 10px 18px;
-    margin: 0 8px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #219ebc;
-    color: white;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background: #023047;
-  }
-  select {
-    font-size: 12px;
-    max-width: 90%;
-  }
-  #manualFillToggle {
-    margin-top: 8px;
-    font-size: 14px;
-  }
-  #wordCount {
-    max-width: 400px;
-    margin: 12px auto;
-    font-size: 12px;
-    color: #555;
-    text-align: center;
-  }
-  #addWordContainer {
-    max-width: 400px;
-    margin: 8px auto;
-    text-align: center;
-  }
-  #newWordInput {
-    width: 70%;
-    padding: 6px;
-    font-size: 14px;
-  }
-  #addWordBtn {
-    padding: 6px 12px;
-    font-size: 14px;
-    margin-left: 8px;
-    background: #4caf50;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-  }
-  #addWordBtn:hover {
-    background: #357a38;
-  }
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 20px;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+    #board {
+        display: grid;
+        grid-template-columns: repeat(5, 200px);
+        grid-gap: 10px;
+    }
+    .cell {
+        width: 200px;
+        height: 150px;
+        border: 1px solid black;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        word-wrap: break-word;
+        padding: 5px;
+        box-sizing: border-box;
+        cursor: pointer;
+    }
+    .marked {
+        background-color: yellow;
+    }
+    #wordList {
+        max-width: 250px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 600px;
+    }
+    #wordList h2 {
+        margin-top: 0;
+    }
+    .controls {
+        text-align: center;
+        margin-bottom: 10px;
+    }
 </style>
 </head>
 <body>
-<h1>Bingo Card Generator</h1>
 
-<div id="container">
-  <div id="bingo"></div>
-
-  <div id="controls">
-    <button id="randomizeBtn">Randomize</button>
-    <button id="clearBtn">Clear</button>
-    <div>
-      <label>
-        <input type="checkbox" id="manualFillToggle" />
-        Manual Fill Mode (tap a cell to select word)
-      </label>
+<div>
+    <div class="controls">
+        <button onclick="generateBoard()">Generate Bingo Card</button>
+        <button onclick="clearHighlights()">Clear Highlights</button>
+        <br><br>
+        <input type="text" id="newWord" placeholder="Add new word">
+        <button onclick="addWord()">Add Word</button>
     </div>
-  </div>
+    <div id="board"></div>
+</div>
 
-  <div id="addWordContainer">
-    <input type="text" id="newWordInput" placeholder="Add a new word..." />
-    <button id="addWordBtn">Add Word</button>
-  </div>
-
-  <div id="wordCount"></div>
+<div id="wordList">
+    <h2>Word List</h2>
+    <div id="wordDisplay"></div>
 </div>
 
 <script>
-  // Initial word list as provided
-  let words = [
-    "Job: Entrepreneur",
-    "Job: Bartender",
-    "Job: DJ",
-    "Job: Developer",
-    "Job: Software engineer",
-    "Job: PM",
-    "Job: Finance/VC",
-    "Job: Not listed",
-    "IG/Snap in bio",
-    "Has kids (Bonus if he says “I’m a single dad”)",
-    "Smokes weed",
-    "College: Any UC",
-    "College Stanford",
-    "Conservative",
-    "Long-term, open to short",
-    "“6’0 because apparently that matters"",
-    "Picture: With a fish",
-    "Picture: A dog at a party / ”not my dog”",
-    "Picture: With his mom",
-    "Picture: Gym flex",
-    "Picture: Shirtless in bathroom",
-    "Picture: Hat-fishing",
-    "Picture: Distant / Dark / Can’t see face / Blurry",
-    "Picture: Angel wing photo",
-    "Picture: Cropped out photo",
-    "Picture: Car",
-    "Picture: Mullet",
-    "Picture: Meme",
-    "Picture: Drunk / Hungover / Throwing up",
-    "Picture: Golden gate bridge",
-    "Picture: Group photo where you can’t tell who he is",
-    "Picture: Wedding guest photo",
-    "Picture: Sunglasses",
-    "Picture: Hiking / mountain / rock climbing",
-    "Picture: Patagonia jacket",
-    "Picture: Japan",
-    "Picture: Coachella",
-    "Love language: Acts of service",
-    "Love language: Physical touch",
-    "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
-    "Looking for: Something serious / long-term but open",
-    "Looking for: Athletic woman",
-    "Looking for: Caring / kind / understanding",
-    "All that I ask is: that you’re honest",
-    "Worst idea / Most spontaneous thing I’ve done / etc: Joining Hinge",
-    "I'll fall for you if: You trip me (up)",
-    "Controversial opinion: Pineapple on pizza",
-    "I get overly competitive about: Everything",
-    "I know the best place in town: for brunch",
-    "Voice prompt feels cursed/cringe",
-    "References: The Office",
-    "References: Harry Potter",
-    "References: Game of Thrones",
-    "References: Breaking Bad",
-    "References: Marvel",
-    "References: Anime",
-    "References: Rick and Morty",
-    "References: Joe Rogan",
-    "References: Crypto/Stock",
-    "Quotes: “Love traveling”",
-    "Quotes: “Looking for my passenger princess”",
-    "Quotes: “Just ask” / ”I’m an open book”",
-    "Quotes: “Bad texter”",
-    "Quotes: “Let’s get to know each other”",
-    "Quotes: “Partner in crime”",
-    "Quotes: “Make me laugh”",
-    "Quotes: “I’m not on here much, add me on IG”",
-    "Food: Tacos",
-    "Food: Pizza",
-    "Food: Beer",
-    "Food: Sushi",
-    "Food: Whiskey",
-    "Food: Brunch",
-    "Food: Coffee",
-    "Food: Ramen",
-    "Food: Spicy food",
-    "Food: Boba",
-    "Food: Tequila",
-    "Food: KBBQ",
-    "Food: Hotpot",
-    "Sports: Tennis",
-    "Sports: Pickleball",
-    "Sports: Football",
-    "Sports: Golf",
-    "Sports: Rock climbing",
-    "Sports: Hiking",
-    "Sports: Biking",
-    "Sports: Baseball",
-    "Cliches: Coffee is their personality",
-    "Cliches: Writes an essay for a prompt",
-    "Cliches: Someone in the room recognizes/knows him",
-    "Cliches: Empty profile",
-    "Cliches: Just moved here / new in town",
-    "Cliches: Just got out of a long-term relationship",
-    "Cliches: Raving",
-    "Cliches: Photography",
-    "Cliches: Extremely patronizing comments (weight, rating, intellect…)"
-  ];
+let words = [
+    "Job: Entrepreneur","Job: Bartender","Job: DJ","Job: Developer","Job: Software engineer","Job: PM","Job: Finance/VC","Job: Not listed",
+    "IG/Snap in bio","Has kids (bonus if he says “I’m a single dad”)","Smokes weed","College: Any UC","College Stanford","Conservative","Long-term, open to short","“6’0 because apparently that matters\"",
+    "Picture: With a fish","Picture: A dog at a party/”not my dog”","Picture: With his mom","Picture: Gym flex","Picture: Shirtless in bathroom","Picture: Hat-fishing","Picture: Distant/dark/can’t see face/blurry",
+    "Picture: Angel wing photo","Picture: Cropped out photo","Picture: Car","Picture: Mullet","Picture: Meme","Picture: Drunk/hungover/throwing up","Picture: Golden gate bridge","Picture: Group photo where you can’t tell who he is",
+    "Picture: Wedding guest photo","Picture: Sunglasses","Picture: Hiking/mountain/rock climbing","Picture: Patagonia jacket",
+    "Love language: Acts of service","Love language: Physical touch","Looking for: Witty banter/Dark humor/Don’t take yourself too seriously/Sarcasm/Roast","Looking for: Something serious/long-term but open","Looking for: Athletic woman","Looking for: Caring/kind/understanding",
+    "All that I ask is: that you’re honest","Worst idea/most spontaneous thing I’ve done/etc: joining hinge","I'll fall for you if: You trip me (up)","Controversial opinion: Pineapple on pizza","I get overly competitive about: Everything","I know the best place in town: for brunch","Voice prompt feels cursed/cringe",
+    "References: The Office","References: Harry Potter","References: Game of Thrones","References: Breaking Bad","References: Marvel","References: Anime","References: Rick and Morty","References: Joe Rogan","References: Crypto/Stock",
+    "Quotes: “Love traveling”","Quotes: “Looking for my passenger princess”","Quotes: “Just ask”/”I’m an open book”","Quotes: “Bad texter”","Quotes: “Let’s get to know each other”","Quotes: “Partner in crime”","Quotes: “Make me laugh”","Quotes: “I’m not on here much, add me on IG”",
+    "Food: Tacos","Food: Pizza","Food: Beer","Food: Sushi","Food: Whiskey","Food: Brunch","Food: Coffee","Food: Ramen","Food: Spicy food","Food: Boba","Food: Tequila","Food: KBBQ","Food: Hotpot",
+    "Sports: Tennis","Sports: Pickleball","Sports: Football","Sports: Golf","Sports: Rock climbing","Sports: Hiking","Sports: Biking","Sports: Baseball",
+    "Cliches: Coffee is their personality","Cliches: Writes an essay for a prompt","Cliches: Someone in the room recognizes/knows him","Cliches: Empty profile","Cliches: Just moved here/new in town","Cliches: Just got out of a long-term relationship","Cliches: Raving","Cliches: Photography","Cliches: Extremely patronizing comments (weight, rating, intellect…)"
+];
 
-  const gridSize = 5;
-  const bingo = document.getElementById('bingo');
-  const randomizeBtn = document.getElementById('randomizeBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const manualFillToggle = document.getElementById('manualFillToggle');
-  const wordCountDisplay = document.getElementById('wordCount');
-  const newWordInput = document.getElementById('newWordInput');
-  const addWordBtn = document.getElementById('addWordBtn');
-
-  let manualFillMode = false;
-  let cells = [];
-
-  function createGrid() {
-    bingo.innerHTML = '';
-    cells = [];
-    for(let r=0; r<gridSize; r++){
-      for(let c=0; c<gridSize; c++){
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.row = r;
-        cell.dataset.col = c;
-
-        if(r === 2 && c === 2) {
-          cell.classList.add('free');
-          cell.textContent = "FREE";
-          cell.dataset.marked = 'false';
-        } else {
-          cell.textContent = '';
-          cell.dataset.marked = 'false';
-        }
-
-        cell.addEventListener('click', () => onCellClick(cell));
-        bingo.appendChild(cell);
-        cells.push(cell);
-      }
-    }
-  }
-
-  function shuffle(array) {
-    for(let i = array.length - 1; i > 0; i--){
-      let j = Math.floor(Math.random() * (i+1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  function randomFill(){
-    if(words.length < gridSize*gridSize-1){
-      alert('Not enough words to fill the bingo card!');
-      return;
-    }
-    const shuffled = shuffle(words.slice());
-    let index = 0;
-    for(let r=0; r<gridSize; r++){
-      for(let c=0; c<gridSize; c++){
-        const cell = cells[r*gridSize + c];
-        if(r === 2 && c === 2){
-          cell.textContent = "FREE";
-          cell.classList.add('free');
-          cell.dataset.marked = 'false';
-          cell.style.backgroundColor = '#a3d2ca';
-        } else {
-          cell.textContent = shuffled[index++];
-          cell.classList.remove('free');
-          cell.dataset.marked = 'false';
-          cell.style.backgroundColor = '';
-        }
-      }
-    }
-  }
-
-  function clearGrid(){
-  for(let cell of cells){
-    if(cell.classList.contains('free')){
-      cell.textContent = "FREE";
-      cell.dataset.marked = 'false';
-      cell.style.backgroundColor = '#a3d2ca';
-      cell.classList.remove('marked');
-    } else {
-      cell.textContent = '';
-      cell.dataset.marked = 'false';
-      cell.style.backgroundColor = '';
-      cell.classList.remove('marked');
-    }
-  }
+function updateWordList() {
+    document.getElementById("wordDisplay").innerHTML = words.join("<br>");
 }
 
-  function onCellClick(cell){
-    if(manualFillMode){
-      if(cell.classList.contains('free')){
-        return; // no editing FREE
-      }
-      openWordSelector(cell);
-    } else {
-      if(cell.dataset.marked === 'true'){
-        cell.dataset.marked = 'false';
-        cell.classList.remove('marked');
-        cell.style.backgroundColor = '';
-      } else {
-        cell.dataset.marked = 'true';
-        cell.classList.add('marked');
-        cell.style.backgroundColor = '#ffb703';
-      }
+function generateBoard() {
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+    const shuffled = [...words].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 25);
+
+    selected.forEach(word => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = word;
+        cell.onclick = () => cell.classList.toggle("marked");
+        board.appendChild(cell);
+    });
+    updateWordList();
+}
+
+function addWord() {
+    const newWord = document.getElementById("newWord").value.trim();
+    if (newWord) {
+        words.push(newWord);
+        document.getElementById("newWord").value = "";
+        updateWordList();
     }
-  }
+}
 
-  function openWordSelector(cell){
-    const select = document.createElement('select');
-    const emptyOption = document.createElement('option');
-    emptyOption.value = '';
-    emptyOption.textContent = '-- Select word --';
-    select.appendChild(emptyOption);
+function clearHighlights() {
+    document.querySelectorAll(".cell").forEach(cell => cell.classList.remove("marked"));
+}
 
-    for(let w of words){
-      const option = document.createElement('option');
-      option.value = w;
-      option.textContent = w;
-      select.appendChild(option);
-    }
-
-    select.value = cell.textContent || '';
-
-    cell.textContent = '';
-    cell.appendChild(select);
-    select.focus();
-
-    function commit(){
-      const val = select.value.trim();
-      if(val && !words.includes(val)){
-        words.push(val);  // add new words typed manually
-        updateWordCount();
-      }
-      cell.removeChild(select);
-      cell.textContent = val;
-      cell.style.backgroundColor = '';
-      cell.dataset.marked = 'false';
-    }
-
-    select.addEventListener('change', commit);
-    select.addEventListener('blur', commit);
-  }
-
-  function updateWordCount(){
-    wordCountDisplay.textContent = `Word list contains ${words.length} words.`;
-  }
-
-  addWordBtn.onclick = () => {
-    const val = newWordInput.value.trim();
-    if(val && !words.includes(val)){
-      words.push(val);
-      updateWordCount();
-      newWordInput.value = '';
-      alert(`Added "${val}" to the word list!`);
-    } else if(words.includes(val)){
-      alert('Word already exists in the list!');
-    }
-  };
-
-  manualFillToggle.onchange = (e) => {
-    manualFillMode = e.target.checked;
-  };
-
-  // Initialize
-  createGrid();
-  updateWordCount();
-
-  randomizeBtn.onclick = () => randomFill();
-  clearBtn.onclick = () => clearGrid();
+updateWordList();
+generateBoard();
 </script>
+
 </body>
 </html>
+
