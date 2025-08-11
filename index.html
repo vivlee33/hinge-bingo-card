@@ -7,17 +7,19 @@
     body {
         font-family: Arial, sans-serif;
         display: flex;
-        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 40px;
         padding: 20px;
     }
     #board {
         display: grid;
-        grid-template-columns: repeat(5, 120px);
+        grid-template-columns: repeat(5, 200px);
         grid-gap: 5px;
     }
     .cell {
-        width: 120px;
-        height: 120px;
+        width: 200px;
+        height: 150px;
         border: 1px solid black;
         text-align: center;
         display: flex;
@@ -37,19 +39,30 @@
         border: 1px solid #ccc;
         padding: 10px;
         height: 600px;
+        background: #f9f9f9;
     }
     #wordList h2 {
         margin-top: 0;
+        text-align: center;
+    }
+    .controls {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .controls input, .controls button {
+        margin: 5px 0;
     }
 </style>
 </head>
 <body>
 
 <div>
-    <button onclick="generateBoard()">Generate Bingo Card</button>
-    <button onclick="clearHighlights()">Clear Highlights</button>
-    <input type="text" id="newWord" placeholder="Add new word">
-    <button onclick="addWord()">Add Word</button>
+    <div class="controls">
+        <button onclick="generateBoard()">Generate Bingo Card</button>
+        <button onclick="clearHighlights()">Clear Highlights</button><br>
+        <input type="text" id="newWord" placeholder="Add new word">
+        <button onclick="addWord()">Add Word</button>
+    </div>
     <div id="board"></div>
 </div>
 
@@ -75,7 +88,7 @@ let words = [
 ];
 
 function updateWordList() {
-    document.getElementById("wordDisplay").innerHTML = words.join("<br>");
+    document.getElementById("wordDisplay").innerHTML = words.map(w => `<div>${w}</div>`).join("");
 }
 
 function generateBoard() {
