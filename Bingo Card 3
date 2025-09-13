@@ -2,23 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bingo Card Generator</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    margin: 8px;
+    margin: 0; /* NEW: remove side gaps */
     background: #f9f9f9;
+    display: flex;            /* NEW */
+    flex-direction: column;   /* NEW */
+    align-items: center;      /* NEW */
+    min-height: 100vh;        /* NEW */
   }
   h1 {
     text-align: center;
+    margin-top: 16px;
   }
   #bingo {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    max-width: 400px;
+    grid-template-columns: repeat(5, 200px); /* NEW: fixed width */
+    grid-template-rows: repeat(5, 150px);    /* NEW: fixed height */
+    gap: 10px;                               /* NEW: keep gaps */
     margin: 12px auto;
+    justify-content: center; /* NEW: center horizontally */
   }
   .cell {
     background: white;
@@ -34,6 +40,9 @@
     font-size: 14px;
     cursor: pointer;
     position: relative;
+    width: 200px;   /* NEW: consistent width */
+    height: 150px;  /* NEW: consistent height */
+    box-sizing: border-box;
   }
   .cell.free {
     background: #a3d2ca;
