@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -25,7 +24,7 @@
     margin: 12px auto;
     justify-content: center;
     width: 100%;
-    max-width: 640px; /* keep grid centered and contained, edited from 800 to 640 */
+    max-width: 500px; /* keep grid centered and contained, edited from 800 to 640 */
   }
   .cell {
     background: white;
@@ -38,12 +37,12 @@
     text-align: center;
     padding: 6px;
     user-select: none;
-    font-size: 14px;
+    font-size: 12px;
     cursor: pointer;
     position: relative;
     aspect-ratio: 4 / 3;     /* maintain rectangle shape */
-    max-width: 128px;        /* NEW: cap width */
-    max-height: 150px;       /* NEW: cap height */
+    max-width: 100px;        /* NEW: cap width */
+    max-height: 200px;       /* NEW: cap height */
     box-sizing: border-box;
   }
   .cell.free {
@@ -82,7 +81,7 @@
     font-size: 14px;
   }
   #wordCount {
-    max-width: 400px;
+    max-width: 300px;
     margin: 12px auto;
     font-size: 12px;
     color: #555;
