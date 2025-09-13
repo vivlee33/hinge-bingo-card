@@ -48,7 +48,7 @@
     /* ✅ Responsive sizing */
     width: 18vw;
     height: 14vw;
-    max-width: 200px; 
+    max-width: 150px; 
     max-height: 150px;
     min-width: 80px;
     min-height: 60px;
