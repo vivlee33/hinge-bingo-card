@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bingo Card Generator</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    margin: 0; /* NEW: remove side gaps */
+    margin: 0;
     background: #f9f9f9;
-    display: flex;            /* NEW */
-    flex-direction: column;   /* NEW */
-    align-items: center;      /* NEW */
-    min-height: 100vh;        /* NEW */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
   }
   h1 {
     text-align: center;
@@ -20,12 +20,12 @@
   }
   #bingo {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* responsive columns */
+    grid-template-columns: repeat(5, minmax(0, 1fr)); /* responsive columns */
     gap: 10px;
     margin: 12px auto;
     justify-content: center;
     width: 100%;
-    max-width: 1000px; /* keeps grid from stretching too wide */
+    max-width: 800px; /* keep grid centered and contained */
   }
   .cell {
     background: white;
@@ -41,17 +41,10 @@
     font-size: 14px;
     cursor: pointer;
     position: relative;
-    width: 150px;   /* NEW: consistent width */
-    height: 150px;  /* NEW: consistent height */
+    aspect-ratio: 4 / 3;     /* maintain rectangle shape */
+    max-width: 150px;        /* NEW: cap width */
+    max-height: 150px;       /* NEW: cap height */
     box-sizing: border-box;
-
-    /* ✅ Responsive sizing */
-    width: 18vw;
-    height: 14vw;
-    max-width: 150px; 
-    max-height: 150px;
-    min-width: 80px;
-    min-height: 60px;
   }
   .cell.free {
     background: #a3d2ca;
@@ -118,314 +111,275 @@
   #addWordBtn:hover {
     background: #357a38;
   }
-
-  /* ✅ Mobile adjustments */
-  @media (max-width: 768px) {
-    #bingo {
-      grid-template-columns: repeat(5, 1fr); /* still 5 columns */
-      gap: 6px;
-    }
-
-    .cell {
-      width: 16vw;
-      height: 16vw;
-      font-size: 12px;
-    }
-  }
-
 </style>
+
 </head>
 <body>
-<h1>Bingo Card Generator</h1>
+<main class="app">
+  <h1>Bingo Card Generator</h1>
 
-<div id="bingo"></div>
+  <div class="container">
+    <div class="left-col">
+      <div id="bingoWrapper">
+        <div id="bingo" role="grid" aria-label="Bingo board"></div>
+      </div>
 
-<div id="controls">
-  <button id="randomizeBtn">Randomize</button>
-  <button id="clearBtn">Clear</button>
-  <div>
-    <label>
-      <input type="checkbox" id="manualFillToggle" />
-      Manual Fill Mode (tap a cell to select word)
-    </label>
+      <div id="controls">
+        <button id="randomizeBtn">Randomize</button>
+        <button id="clearBtn">Clear</button>
+        <label style="display:flex;align-items:center;gap:6px;margin-left:6px;">
+          <input type="checkbox" id="manualFillToggle" />
+          Manual Fill Mode
+        </label>
+      </div>
+
+      <div id="addWordContainer">
+        <input type="text" id="newWordInput" placeholder="Add a new word..." />
+        <button id="addWordBtn">Add Word</button>
+      </div>
+
+      <div id="wordCount" aria-live="polite"></div>
+    </div>
+
+    <aside id="wordListContainer" aria-label="Word list">
+      <h2>Word List</h2>
+      <ul id="wordList"></ul>
+    </aside>
   </div>
-</div>
-
-<div id="addWordContainer">
-  <input type="text" id="newWordInput" placeholder="Add a new word..." />
-  <button id="addWordBtn">Add Word</button>
-</div>
-
-<div id="wordCount"></div>
+</main>
 
 <script>
-  // Initial word list as provided
-  let words = [
-    "Job: Entrepreneur",
-    "Job: Bartender",
-    "Job: DJ",
-    "Job: Developer",
-    "Job: Software engineer",
-    "Job: PM",
-    "Job: Finance/VC",
-    "Job: Not listed",
-    "IG/Snap in bio",
-    "Has kids (bonus if he says “I’m a single dad”)",
-    "Smokes weed",
-    "College: Any UC",
-    "College Stanford",
-    "Conservative",
-    "Long-term, open to short",
-    "“6’0 because apparently that matters\"",
-    "Picture: With a fish",
-    "Picture: A dog at a party/”not my dog”",
-    "Picture: With his mom",
-    "Picture: Gym flex",
-    "Picture: Shirtless in bathroom",
-    "Picture: Hat-fishing",
-    "Picture: Distant/dark/can’t see face/blurry",
-    "Picture: Angel wing photo",
-    "Picture: Cropped out photo",
-    "Picture: Car",
-    "Picture: Mullet",
-    "Picture: Meme",
-    "Picture: Drunk/hungover/throwing up",
-    "Picture: Golden gate bridge",
-    "Picture: Group photo where you can’t tell who he is",
-    "Picture: Wedding guest photo",
-    "Picture: Sunglasses",
-    "Picture: Hiking/mountain/rock climbing",
-    "Picture: Patagonia jacket",
-    "Love language: Acts of service",
-    "Love language: Physical touch",
-    "Looking for: Witty banter/Dark humor/Don’t take yourself too seriously/Sarcasm/Roast",
-    "Looking for: Something serious/long-term but open",
-    "Looking for: Athletic woman",
-    "Looking for: Caring/kind/understanding",
-    "All that I ask is: that you’re honest",
-    "Worst idea/most spontaneous thing I’ve done/etc: joining hinge",
-    "I'll fall for you if: You trip me (up)",
-    "Controversial opinion: Pineapple on pizza",
-    "I get overly competitive about: Everything",
-    "I know the best place in town: for brunch",
-    "Voice prompt feels cursed/cringe",
-    "References: The Office",
-    "References: Harry Potter",
-    "References: Game of Thrones",
-    "References: Breaking Bad",
-    "References: Marvel",
-    "References: Anime",
-    "References: Rick and Morty",
-    "References: Joe Rogan",
-    "References: Crypto/Stock",
-    "Quotes: “Love traveling”",
-    "Quotes: “Looking for my passenger princess”",
-    "Quotes: “Just ask”/”I’m an open book”",
-    "Quotes: “Bad texter”",
-    "Quotes: “Let’s get to know each other”",
-    "Quotes: “Partner in crime”",
-    "Quotes: “Make me laugh”",
-    "Quotes: “I’m not on here much, add me on IG”",
-    "Food: Tacos",
-    "Food: Pizza",
-    "Food: Beer",
-    "Food: Sushi",
-    "Food: Whiskey",
-    "Food: Brunch",
-    "Food: Coffee",
-    "Food: Ramen",
-    "Food: Spicy food",
-    "Food: Boba",
-    "Food: Tequila",
-    "Food: KBBQ",
-    "Food: Hotpot",
-    "Sports: Tennis",
-    "Sports: Pickleball",
-    "Sports: Football",
-    "Sports: Golf",
-    "Sports: Rock climbing",
-    "Sports: Hiking",
-    "Sports: Biking",
-    "Sports: Baseball",
-    "Cliches: Coffee is their personality",
-    "Cliches: Writes an essay for a prompt",
-    "Cliches: Someone in the room recognizes/knows him",
-    "Cliches: Empty profile",
-    "Cliches: Just moved here/new in town",
-    "Cliches: Just got out of a long-term relationship",
-    "Cliches: Raving",
-    "Cliches: Photography",
-    "Cliches: Extremely patronizing comments (weight, rating, intellect…)"
-  ];
+/* ---------- Data ---------- */
+let words = [
+  "Job: Entrepreneur","Job: Bartender","Job: DJ","Job: Developer","Job: Software engineer","Job: PM","Job: Finance / VC","Job: Not listed",
+  "IG / Snap in bio","Has kids (bonus if he says “I’m a single dad”)","Smokes weed","College: Any UC","College Stanford","Conservative",
+  "Long-term, open to short","“6’0 because apparently that matters\"","Picture: With a fish","Picture: A dog at a party / ”not my dog”",
+  "Picture: With his mom","Picture: Gym flex","Picture: Shirtless in bathroom","Picture: Hat-fishing","Picture: Distant / dark / can’t see face / blurry",
+  "Picture: Angel wing photo","Picture: Cropped out photo","Picture: Car","Picture: Mullet","Picture: Meme","Picture: Drunk / hungover / throwing up",
+  "Picture: Golden gate bridge","Picture: Group photo where you can’t tell who he is","Picture: Wedding guest photo","Picture: Sunglasses",
+  "Picture: Hiking / mountain / rock climbing","Picture: Patagonia jacket","Picture: Coachella","Picture: Japan",
+  "Love language: Acts of service","Love language: Physical touch",
+  "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
+  "Looking for: Something serious / long-term but open","Looking for: Athletic woman","Looking for: Caring / kind / understanding",
+  "All that I ask is: that you’re honest","Worst idea / most spontaneous thing I’ve done / etc: joining hinge",
+  "I'll fall for you if: You trip me (up)","Controversial opinion: Pineapple on pizza","I get overly competitive about: Everything",
+  "I know the best place in town: for brunch","Voice prompt feels cursed / cringe",
+  "References: The Office","References: Harry Potter","References: Game of Thrones","References: Breaking Bad","References: Marvel",
+  "References: Anime","References: Rick and Morty","References: Joe Rogan","References: Crypto / Stock",
+  "Quotes: “Love traveling”","Quotes: “Looking for my passenger princess”","Quotes: “Just ask” / ”I’m an open book”",
+  "Quotes: “Bad texter”","Quotes: “Let’s get to know each other”","Quotes: “Partner in crime”","Quotes: “Make me laugh”",
+  "Quotes: “I’m not on here much, add me on IG”",
+  "Food: Tacos","Food: Pizza","Food: Beer","Food: Sushi","Food: Whiskey","Food: Brunch","Food: Coffee","Food: Ramen",
+  "Food: Spicy food","Food: Boba","Food: Tequila","Food: KBBQ","Food: Hotpot",
+  "Sports: Tennis","Sports: Pickleball","Sports: Football","Sports: Golf","Sports: Rock climbing","Sports: Hiking",
+  "Sports: Biking","Sports: Baseball",
+  "Cliches: Coffee is their personality","Cliches: Writes an essay for a prompt","Cliches: Someone in the room recognizes / knows him",
+  "Cliches: Empty profile","Cliches: Just moved here / new in town","Cliches: Just got out of a long-term relationship",
+  "Cliches: Raving","Cliches: Photography","Cliches: Extremely patronizing comments (weight, rating, intellect…)"
+];
 
-  const gridSize = 5;
-  const bingo = document.getElementById('bingo');
-  const randomizeBtn = document.getElementById('randomizeBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const manualFillToggle = document.getElementById('manualFillToggle');
-  const wordCountDisplay = document.getElementById('wordCount');
-  const newWordInput = document.getElementById('newWordInput');
-  const addWordBtn = document.getElementById('addWordBtn');
+const gridSize = 5;
 
-  let manualFillMode = false;
-  let cells = [];
+/* ---------- DOM ---------- */
+const bingo = document.getElementById('bingo');
+const randomizeBtn = document.getElementById('randomizeBtn');
+const clearBtn = document.getElementById('clearBtn');
+const manualFillToggle = document.getElementById('manualFillToggle');
+const wordCountDisplay = document.getElementById('wordCount');
+const newWordInput = document.getElementById('newWordInput');
+const addWordBtn = document.getElementById('addWordBtn');
+const wordListElement = document.getElementById('wordList');
 
-  function createGrid() {
-    bingo.innerHTML = '';
-    cells = [];
-    for(let r=0; r<gridSize; r++){
-      for(let c=0; c<gridSize; c++){
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.row = r;
-        cell.dataset.col = c;
+let manualFillMode = false;
+let cells = [];
 
-        if(r === 2 && c === 2) {
-          cell.classList.add('free');
-          cell.textContent = "FREE";
-          cell.dataset.marked = 'false';
-        } else {
-          cell.textContent = '';
-          cell.dataset.marked = 'false';
-        }
+/* ---------- Helpers ---------- */
+function shuffle(a){
+  const arr = a.slice();
+  for(let i = arr.length - 1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
-        cell.addEventListener('click', () => onCellClick(cell));
-        bingo.appendChild(cell);
-        cells.push(cell);
+/* ---------- Grid creation ---------- */
+function createGrid(){
+  bingo.innerHTML = '';
+  cells = [];
+  for(let r=0; r<gridSize; r++){
+    for(let c=0; c<gridSize; c++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      if(r === 2 && c === 2){
+        cell.classList.add('free');
+        cell.textContent = 'FREE';
+        cell.dataset.marked = 'false';
+      } else {
+        cell.textContent = '';
+        cell.dataset.marked = 'false';
       }
-    }
-  }
 
-  function shuffle(array) {
-    for(let i = array.length - 1; i > 0; i--){
-      let j = Math.floor(Math.random() * (i+1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  function randomFill(){
-    if(words.length < gridSize*gridSize-1){
-      alert('Not enough words to fill the bingo card!');
-      return;
-    }
-    const shuffled = shuffle(words.slice());
-    let index = 0;
-    for(let r=0; r<gridSize; r++){
-      for(let c=0; c<gridSize; c++){
-        const cell = cells[r*gridSize + c];
-        if(r === 2 && c === 2){
-          cell.textContent = "FREE";
-          cell.classList.add('free');
-          cell.dataset.marked = 'false';
-          cell.style.backgroundColor = '#a3d2ca';
-        } else {
-          cell.textContent = shuffled[index++];
-          cell.classList.remove('free');
-          cell.dataset.marked = 'false';
-          cell.style.backgroundColor = '';
-        }
-      }
-    }
-  }
-
-  function clearGrid(){
-  for(let cell of cells){
-    if(cell.classList.contains('free')){
-      cell.textContent = "FREE";
-      cell.dataset.marked = 'false';
-      cell.style.backgroundColor = '#a3d2ca';
-      cell.classList.remove('marked');
-    } else {
-      cell.textContent = '';
-      cell.dataset.marked = 'false';
-      cell.style.backgroundColor = '';
-      cell.classList.remove('marked');
+      cell.addEventListener('click', () => onCellClick(cell));
+      bingo.appendChild(cell);
+      cells.push(cell);
     }
   }
 }
 
-  function onCellClick(cell){
-    if(manualFillMode){
-      if(cell.classList.contains('free')){
-        return; // no editing FREE
-      }
-      openWordSelector(cell);
-    } else {
-      if(cell.dataset.marked === 'true'){
+/* ---------- Fill / clear ---------- */
+function randomFill(){
+  if(words.length < gridSize*gridSize - 1){
+    alert('Not enough words to fill the bingo card.');
+    return;
+  }
+  const shuffled = shuffle(words);
+  let idx = 0;
+  for(let r=0; r<gridSize; r++){
+    for(let c=0; c<gridSize; c++){
+      const cell = cells[r*gridSize + c];
+      if(r===2 && c===2){
+        cell.textContent = 'FREE';
+        cell.classList.add('free');
+        cell.dataset.marked = 'false';
+        cell.classList.remove('marked');
+        cell.style.backgroundColor = '#a3d2ca';
+      } else {
+        cell.textContent = shuffled[idx++];
+        cell.classList.remove('free');
         cell.dataset.marked = 'false';
         cell.classList.remove('marked');
         cell.style.backgroundColor = '';
-      } else {
-        cell.dataset.marked = 'true';
-        cell.classList.add('marked');
-        cell.style.backgroundColor = '#ffb703';
       }
     }
   }
-
-  function openWordSelector(cell){
-    const select = document.createElement('select');
-    const emptyOption = document.createElement('option');
-    emptyOption.value = '';
-    emptyOption.textContent = '-- Select word --';
-    select.appendChild(emptyOption);
-
-    for(let w of words){
-      const option = document.createElement('option');
-      option.value = w;
-      option.textContent = w;
-      select.appendChild(option);
-    }
-
-    select.value = cell.textContent || '';
-
-    cell.textContent = '';
-    cell.appendChild(select);
-    select.focus();
-
-    function commit(){
-      const val = select.value.trim();
-      if(val && !words.includes(val)){
-        words.push(val);  // add new words typed manually
-        updateWordCount();
-      }
-      cell.removeChild(select);
-      cell.textContent = val;
-      cell.style.backgroundColor = '';
-      cell.dataset.marked = 'false';
-    }
-
-    select.addEventListener('change', commit);
-    select.addEventListener('blur', commit);
-  }
-
-  function updateWordCount(){
-    wordCountDisplay.textContent = `Word list contains ${words.length} words.`;
-  }
-
-  addWordBtn.onclick = () => {
-    const val = newWordInput.value.trim();
-    if(val && !words.includes(val)){
-      words.push(val);
-      updateWordCount();
-      newWordInput.value = '';
-      alert(`Added "${val}" to the word list!`);
-    } else if(words.includes(val)){
-      alert('Word already exists in the list!');
-    }
-  };
-
-  manualFillToggle.onchange = (e) => {
-    manualFillMode = e.target.checked;
-  };
-
-  // Initialize
-  createGrid();
+  updateWordList();
   updateWordCount();
+}
 
-  randomizeBtn.onclick = () => randomFill();
-  clearBtn.onclick = () => clearGrid();
+function clearGrid(){
+  cells.forEach(cell => {
+    if(cell.classList.contains('free')){
+      cell.textContent = 'FREE';
+      cell.style.backgroundColor = '#a3d2ca';
+    } else {
+      cell.textContent = '';
+      cell.style.backgroundColor = '';
+    }
+    cell.classList.remove('marked');
+    cell.dataset.marked = 'false';
+  });
+}
+
+/* ---------- Click behavior ---------- */
+function onCellClick(cell){
+  if(manualFillMode){
+    if(cell.classList.contains('free')) return;
+    openWordSelector(cell);
+    return;
+  }
+
+  if(cell.dataset.marked === 'true'){
+    cell.dataset.marked = 'false';
+    cell.classList.remove('marked');
+    cell.style.backgroundColor = '';
+  } else {
+    cell.dataset.marked = 'true';
+    cell.classList.add('marked');
+    cell.style.backgroundColor = '#ffb703';
+  }
+}
+
+/* ---------- Manual fill: select inside cell ---------- */
+function openWordSelector(cell){
+  const select = document.createElement('select');
+  select.style.width = '100%';
+  const empty = document.createElement('option');
+  empty.value = '';
+  empty.textContent = '-- select word --';
+  select.appendChild(empty);
+
+  words.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = w;
+    select.appendChild(opt);
+  });
+
+  select.value = (cell.textContent && cell.textContent !== 'FREE') ? cell.textContent : '';
+
+  cell.innerHTML = '';
+  cell.appendChild(select);
+  select.focus();
+
+  function commit(){
+    const val = select.value.trim();
+    if(val){
+      if(!words.includes(val)){
+        words.push(val);
+        updateWordList();
+      }
+      cell.textContent = val;
+    } else {
+      cell.textContent = '';
+    }
+    cell.dataset.marked = 'false';
+    // restore free styling if it was free (shouldn't happen)
+  }
+
+  select.addEventListener('change', () => { commit(); });
+  select.addEventListener('blur', () => {
+    // small delay to allow change event to fire if user clicked option
+    setTimeout(() => commit(), 100);
+  });
+}
+
+/* ---------- Word list UI ---------- */
+function updateWordList(){
+  wordListElement.innerHTML = '';
+  words.forEach(w => {
+    const li = document.createElement('li');
+    li.textContent = w;
+    wordListElement.appendChild(li);
+  });
+}
+
+function updateWordCount(){
+  wordCountDisplay.textContent = `Word list contains ${words.length} words.`;
+}
+
+/* ---------- Add word ---------- */
+addWordBtn.addEventListener('click', () => {
+  const val = newWordInput.value.trim();
+  if(!val) return;
+  if(!words.includes(val)){
+    words.push(val);
+    newWordInput.value = '';
+    updateWordList();
+    updateWordCount();
+  } else {
+    alert('That word already exists in the list.');
+  }
+});
+
+/* ---------- Toggle manual mode ---------- */
+manualFillToggle.addEventListener('change', (e) => {
+  manualFillMode = e.target.checked;
+});
+
+/* ---------- Buttons ---------- */
+randomizeBtn.addEventListener('click', () => randomFill());
+clearBtn.addEventListener('click', () => clearGrid());
+
+/* ---------- Init ---------- */
+createGrid();
+randomFill();
+updateWordList();
+updateWordCount();
 </script>
 </body>
 </html>
+
