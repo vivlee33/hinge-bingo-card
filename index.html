@@ -1,27 +1,65 @@
 <html lang="en">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bingo Card Generator</title>
 <style>
+    /* ========== Base ========== */
   body {
-    font-family: Arial, sans-serif;
+    font-family: "Hanken Grotesk", sans-serif; /* Body font */
     margin: 0;
-    background: #f9f9f9;
+    background: #F5C6AA;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
   }
 
-  h1 {
-    text-align: center;
-    margin-top: 16px;
+  h1, h2, h3 {
+    font-family: "Baloo 2", sans-serif; /* Titles */
+    text-align: center;             /* Keep centered */
+    color: #4B4B7C;                 /* Title Color */
+  }
+
+  button {
+    font-family: "Baloo 2", sans-serif; /* Buttons too */
+  }
+  
+    /* ========== NEW container for layout ========== */
+  .container {
+  display: flex;
+  justify-content: center;   /* centers horizontally */
+  align-items: flex-start;   /* top-aligned */
+  gap: 24px;                 /* space between bingo + word list */
+  flex-wrap: wrap;           /* allow wrapping on mobile */
+  margin: 20px auto;
+  max-width: 95%;
+  }
+
+  /* ========== Bingo grid ========== */
+  #controls label,
+  #newWordInput,
+  #addWordBtn,
+  .cell,
+  #wordCount,
+  #wordListContainer {
+    font-family: "Hanken Grotesk", sans-serif; /* Body text */
+    border: 2px solid #4B4B7C;
+    border-radius: 6px;
+    background: #f9f9f9;
+    padding: 12px; /* optional, adds space inside the box */
+    max-width: 400px;
+    
+    /* Center container and content */
+    margin-left: auto;
+    margin-right: auto;
   }
 
   #bingo {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, 1fr); /* exactly 5 equal columns */
     gap: 4px;
     margin: 12px auto;
     justify-content: center;
@@ -31,7 +69,8 @@
 
   .cell {
     background: white;
-    border: 2px solid #444;
+    width: 100%;           /* take full column width */
+    border: 2px solid #4B4B7C;
     border-radius: 6px;
     min-height: 60px;
     display: flex;
@@ -43,7 +82,7 @@
     font-size: 12px;
     cursor: pointer;
     position: relative;
-    max-width: 150px;
+    max-width: 150px;       /* max cell width */
     box-sizing: border-box;
     height: auto;           /* allows height to grow with text */
     word-wrap: break-word;  /* wrap long words */
@@ -60,7 +99,7 @@
     color: white;
   }
 
-  /* ---------- Controls ---------- */
+  /* ========== Controls ========== */
   #controls {
     display: flex;
     align-items: center;
@@ -84,16 +123,16 @@
   button {
     font-size: 16px;
     padding: 10px 18px;
-    border: none;
-    border-radius: 8px;
+    border: 2px solid #4B4B7C;
+    border-radius: 6px;
     cursor: pointer;
-    background: #219ebc;
-    color: white;
+    background: #B8D8BA;
+    color: #333333;
     transition: background-color 0.3s ease;
   }
 
   button:hover {
-    background: #023047;
+    background: #C4B4E1;
   }
 
   select {
@@ -101,6 +140,18 @@
     max-width: 90%;
   }
 
+    /* ========== Word List ========== */
+  #wordListContainer {
+  font-family: "Hanken Grotesk", sans-serif;
+  border: 2px solid #4B4B7C;
+  border-radius: 6px;
+  background: #f9f9f9;
+  padding: 12px;
+  max-width: 400px;
+  flex: 1;          /* lets it grow/shrink */
+  min-width: 250px; /* prevents squish */
+  }
+  
   #wordCount {
     max-width: 300px;
     margin: 12px auto;
@@ -125,18 +176,18 @@
     padding: 6px 12px;
     font-size: 14px;
     margin-left: 8px;
-    background: #4caf50;
-    border: none;
+    background: #A8DADC;
+    border: 2px solid #4B4B7C;
     border-radius: 6px;
-    color: white;
+    color: #333333;
     cursor: pointer;
   }
 
   #addWordBtn:hover {
-    background: #357a38;
+    background: #C4B4E1;
   }
 
-  /* ---------- Responsive adjustments ---------- */
+  /* ========== Responsive adjustments ========== */
   @media (max-width: 480px) {
     .cell {
       font-size: 10px;    /* reduce font on small screens */
@@ -162,6 +213,7 @@
 <main class="app">
   <h1>Bingo Card Generator</h1>
 
+    <!-- 🔽 bingo grid + word list are children of .container -->
   <div class="container">
     <div class="left-col">
       <div id="bingoWrapper">
@@ -259,24 +311,58 @@
     updateWordList(); updateWordCount();
   }
 
-  function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#a3d2ca'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
+  function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#A8DADC'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
 
   function onCellClick(cell){
     if(manualFillMode){ if(cell.classList.contains('free')) return; openWordSelector(cell); return; }
     if(cell.dataset.marked==='true'){ cell.dataset.marked='false'; cell.classList.remove('marked'); cell.style.backgroundColor=''; }
-    else{ cell.dataset.marked='true'; cell.classList.add('marked'); cell.style.backgroundColor='#ffb703'; }
+    else{ cell.dataset.marked='true'; cell.classList.add('marked'); cell.style.backgroundColor='#F1A399'; }
   }
 
-  function openWordSelector(cell){
-    const select=document.createElement('select'); select.style.width='100%';
-    const empty=document.createElement('option'); empty.value=''; empty.textContent='-- select word --'; select.appendChild(empty);
-    words.forEach(w=>{ const opt=document.createElement('option'); opt.value=w; opt.textContent=w; select.appendChild(opt); });
-    select.value=(cell.textContent && cell.textContent!=='FREE')?cell.textContent:'';
-    cell.innerHTML=''; cell.appendChild(select); select.focus();
-    function commit(){ const val=select.value.trim(); if(val){ if(!words.includes(val)){ words.push(val); updateWordList(); } cell.textContent=val; } else{ cell.textContent=''; } cell.dataset.marked='false'; }
-    select.addEventListener('change',()=>{ commit(); });
-    select.addEventListener('blur',()=>{ setTimeout(()=>commit(),100); });
+function openWordSelector(cell){
+  const select=document.createElement('select'); 
+  select.style.width='100%';
+
+  const empty=document.createElement('option');
+  empty.value='';
+  empty.textContent='-- select word --';
+  select.appendChild(empty);
+
+  words.forEach(w=>{
+    const opt=document.createElement('option');
+    opt.value=w;
+    opt.textContent=w;
+    select.appendChild(opt);
+  });
+
+  select.value=(cell.textContent && cell.textContent!=='FREE')?cell.textContent:'';
+
+  cell.innerHTML='';
+  cell.appendChild(select);
+
+  // 👇 prevent dropdown from closing instantly in Chrome
+  select.focus();
+  select.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  function commit(){
+    const val=select.value.trim();
+    if(val){
+      if(!words.includes(val)){
+        words.push(val);
+        updateWordList();
+      }
+      cell.textContent=val;
+    } else {
+      cell.textContent='';
+    }
+    cell.dataset.marked='false';
   }
+
+  select.addEventListener('change',()=>{ commit(); });
+  select.addEventListener('blur',()=>{ setTimeout(()=>commit(),100); });
+}
 
   function updateWordList(){ wordListElement.innerHTML=''; words.forEach(w=>{ const li=document.createElement('li'); li.textContent=w; wordListElement.appendChild(li); }); }
   function updateWordCount(){ wordCountDisplay.textContent=`Word list contains ${words.length} words.`; }
