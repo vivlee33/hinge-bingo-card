@@ -255,8 +255,27 @@
       padding: 8px 12px;
     }
   }
+  
+  /* ========== H3 and Bullet Point Colors ========== */
+    /* Bio */
+  .bio-header, .bio-list li::marker { color: #4B4B7C; }
+  .picture-header, .picture-list li::marker { color: #D69F40; }
+  .prompt-header, .prompt-list li::marker { color: #A0526D; }
+  .reference-header, .reference-list li::marker { color: #5A9367; }
+  .quote-header, .quote-list li::marker { color: #C0623C; }
+  .food-header, .food-list li::marker { color: #6B4C9A; }
+  .sports-header, .sports-list li::marker { color: #2E8BC0; }
+  .cliches-header, .cliches-list li::marker { color: #097B85; }
+  .other-header, .other-list li::marker { color: #292929; }
+  
+  #wordList ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
 </style>
 </head>
+  
 <body>
 <main class="app">
   <h1>Hinge Bingo - Boys Edition</h1>
@@ -425,12 +444,12 @@
     updateWordCount();
   }
 
-  function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#A8DADC'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
+  function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#E99968'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
 
   function onCellClick(cell){
     if(manualFillMode){ if(cell.classList.contains('free')) return; openWordSelector(cell); return; }
     if(cell.dataset.marked==='true'){ cell.dataset.marked='false'; cell.classList.remove('marked'); cell.style.backgroundColor=''; }
-    else{ cell.dataset.marked='true'; cell.classList.add('marked'); cell.style.backgroundColor='#F1A399'; }
+    else{ cell.dataset.marked='true'; cell.classList.add('marked'); cell.style.backgroundColor='#D69F40'; }
   }
 
 function openWordSelector(cell){
@@ -482,44 +501,30 @@ function openWordSelector(cell){
   select.addEventListener('blur',()=>{ setTimeout(()=>commit(),100); });
 }
 
-   function updateWordList() {
+  function updateWordList() {
     wordListElement.innerHTML = '';
-
     for (const category in words) {
-      const section = document.createElement('div');
-      section.classList.add('category-section');
+      // Category header
+      const categoryHeader = document.createElement('h3');
+      categoryHeader.textContent = category.toUpperCase();
+      categoryHeader.className = category + "-header";
+      wordListElement.appendChild(categoryHeader);
 
-      const title = document.createElement('div');
-      title.classList.add('category-title');
-      title.textContent = category.toUpperCase();
-
-      // Match colors to cell classes
-      if (category === "bio") title.style.color = "#4B4B7C";
-      if (category === "picture") title.style.color = "#D69F40";
-      if (category === "prompt") title.style.color = "#A0526D";
-      if (category === "reference") title.style.color = "#5A9367";
-      if (category === "quote") title.style.color = "#C0623C";
-      if (category === "food") title.style.color = "#6B4C9A";
-      if (category === "sports") title.style.color = "#2E8BC0";
-      if (category === "cliches") title.style.color = "#097B85";
-
-      section.appendChild(title);
-
+      // Word list
       const ul = document.createElement('ul');
+      ul.className = category + "-list";
       words[category].forEach(w => {
         const li = document.createElement('li');
         li.textContent = w;
         ul.appendChild(li);
       });
-
-      section.appendChild(ul);
-      wordListElement.appendChild(section);
+      wordListElement.appendChild(ul);
     }
   }
   
   function updateWordCount() {
     const totalWords = Object.values(words).reduce((sum, arr) => sum + arr.length, 0);
-    wordCountDisplay.textContent = `Option list contains ${totalWords} words.`;
+    wordCountDisplay.textContent = `Option list contains ${totalWords} phrases.`;
   }
 
 
