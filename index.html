@@ -56,6 +56,22 @@
     margin-left: auto;
     margin-right: auto;
   }
+  
+  /* Remove bullets and add spacing */
+  #wordListContainer ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .category-section {
+    margin-bottom: 16px; /* space between categories */
+  }
+
+  .category-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
 
   #bingo {
     display: grid;
@@ -87,6 +103,16 @@
     height: auto;           /* allows height to grow with text */
     word-wrap: break-word;  /* wrap long words */
   }
+  
+      /* ========== Category colors ========== */
+  .cell.bio { color: #6A5ACD; }      /* purple-ish */
+  .cell.picture { color: #008080; }  /* teal */
+  .cell.prompt { color: #FF7F50; }   /* coral */
+  .cell.reference { color: #8B4513; }/* brown */
+  .cell.quote { color: #DC143C; }    /* crimson */
+  .cell.food { color: #228B22; }     /* forest green */
+  .cell.sports { color: #1E90FF; }   /* blue */
+  .cell.cliches { color: #FF1493; }  /* pink */
 
   .cell.free {
     background: #a3d2ca;
@@ -155,19 +181,39 @@
   #wordCount {
     max-width: 300px;
     margin: 12px auto;
-    font-size: 12px;
-    color: #555;
+    font-size: 14px;
+    font-weight: bold;          /* stand out */
+    color: #4B4B7C;             /* theme color */
     text-align: center;
+    padding: 6px;
+    background: #FFF8E7;       /* light background for contrast */
   }
 
   #addWordContainer {
     max-width: 400px;
     margin: 8px auto;
     text-align: center;
+    display: flex;
+    flex-direction: column; /* stack input and controls vertically */
+    align-items: center;    /* center everything horizontally */
+    gap: 8px;               /* space between input and the row below */
+  }
+
+  #addWordControls {
+    display: flex;    /* treat as a single block */
+    justify-content: center; /* center the row horizontally */
+    gap: 8px;                /* space between dropdown and button */
+    align-items: center;     /* vertically align dropdown and button */
+    width: auto;            /* shrink to fit content */
+  }
+  
+  #newWordCategory {
+    width: 150px;               /* fixed width so it doesn’t stretch */
+    flex: none;                 /* prevent it from expanding */
   }
 
   #newWordInput {
-    width: 70%;
+    width: 75%;
     padding: 6px;
     font-size: 14px;
   }
@@ -181,6 +227,7 @@
     border-radius: 6px;
     color: #333333;
     cursor: pointer;
+    flex: none;
   }
 
   #addWordBtn:hover {
@@ -232,9 +279,26 @@
 
       <div id="addWordContainer">
         <input type="text" id="newWordInput" placeholder="Add a new word..." />
-        <button id="addWordBtn">Add Word</button>
+
+        <div id="addWordControls">
+          <select id="newWordCategory">
+            <option value="">-- Select category --</option>
+            <option value="bio">Bio</option>
+            <option value="picture">Picture</option>
+            <option value="prompt">Prompt</option>
+            <option value="reference">Reference</option>
+            <option value="quote">Quote</option>
+            <option value="food">Food</option>
+            <option value="sports">Sports</option>
+            <option value="cliches">Cliches</option>
+            <option value="other">Other</option>
+          </select>
+
+          <button id="addWordBtn">Add Word</button>
+        </div>
       </div>
 
+      
       <div id="wordCount" aria-live="polite"></div>
     </div>
 
@@ -247,31 +311,49 @@
 
 <script>
   const gridSize = 5;
-  let words = ["Job: Entrepreneur","Job: Bartender","Job: DJ","Job: Developer","Job: Software engineer","Job: PM","Job: Finance / VC","Job: Not listed",
-  "IG / Snap in bio","Has kids (bonus if he says “I’m a single dad”)","Smokes weed","College: Any UC","College Stanford","Conservative",
-  "Long-term, open to short","“6’0 because apparently that matters\"","Picture: With a fish","Picture: A dog at a party / ”not my dog”",
-  "Picture: With his mom","Picture: Gym flex","Picture: Shirtless in bathroom","Picture: Hat-fishing","Picture: Distant / dark / can’t see face / blurry",
-  "Picture: Angel wing photo","Picture: Cropped out photo","Picture: Car","Picture: Mullet","Picture: Meme","Picture: Drunk / hungover / throwing up",
-  "Picture: Golden gate bridge","Picture: Group photo where you can’t tell who he is","Picture: Wedding guest photo","Picture: Sunglasses",
-  "Picture: Hiking / mountain / rock climbing","Picture: Patagonia jacket","Picture: Coachella","Picture: Japan",
-  "Love language: Acts of service","Love language: Physical touch",
-  "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
-  "Looking for: Something serious / long-term but open","Looking for: Athletic woman","Looking for: Caring / kind / understanding",
-  "All that I ask is: that you’re honest","Worst idea / most spontaneous thing I’ve done / etc: joining hinge",
-  "I'll fall for you if: You trip me (up)","Controversial opinion: Pineapple on pizza","I get overly competitive about: Everything",
-  "I know the best place in town: for brunch","Voice prompt feels cursed / cringe",
-  "References: The Office","References: Harry Potter","References: Game of Thrones","References: Breaking Bad","References: Marvel",
-  "References: Anime","References: Rick and Morty","References: Joe Rogan","References: Crypto / Stock",
-  "Quotes: “Love traveling”","Quotes: “Looking for my passenger princess”","Quotes: “Just ask” / ”I’m an open book”",
-  "Quotes: “Bad texter”","Quotes: “Let’s get to know each other”","Quotes: “Partner in crime”","Quotes: “Make me laugh”",
-  "Quotes: “I’m not on here much, add me on IG”",
-  "Food: Tacos","Food: Pizza","Food: Beer","Food: Sushi","Food: Whiskey","Food: Brunch","Food: Coffee","Food: Ramen",
-  "Food: Spicy food","Food: Boba","Food: Tequila","Food: KBBQ","Food: Hotpot",
-  "Sports: Tennis","Sports: Pickleball","Sports: Football","Sports: Golf","Sports: Rock climbing","Sports: Hiking",
-  "Sports: Biking","Sports: Baseball",
-  "Cliches: Coffee is their personality","Cliches: Writes an essay for a prompt","Cliches: Someone in the room recognizes / knows him",
-  "Cliches: Empty profile","Cliches: Just moved here / new in town","Cliches: Just got out of a long-term relationship",
-  "Cliches: Raving","Cliches: Photography","Cliches: Extremely patronizing comments (weight, rating, intellect…)"];
+  const words = {
+    bio: [
+      "Job: Entrepreneur","Job: Bartender","Job: DJ","Job: Developer","Job: Software engineer","Job: PM","Job: Finance / VC","Job: Not listed",
+      "IG / Snap in bio","Has kids (bonus if he says “I’m a single dad”)","Smokes weed","College: Any UC","College Stanford","Conservative",
+      "Long-term, open to short","6’0 because apparently that matters"
+    ],
+    picture: [
+      "With a fish", "A dog at a party ('Not my dog')","With his mom","Gym flex","Shirtless in bathroom",
+      "Hat-fishing","Distant / Dark / Can’t see face / Blurry","Angel wing photo","Cropped out photo","Car",
+      "Mullet","Meme","Drunk / Hungover / Throwing up","Golden Gate Bridge","Group photo where you can’t tell who he is",
+      "Wedding guest photo","Sunglasses","Hiking / Mountain / Rock climbing","Patagonia jacket","Coachella","Japan"
+    ],
+    prompt: [
+      "Love language: Acts of service","Love language: Physical touch",
+      "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
+      "Looking for: Something serious / Long-term but open","Looking for: Athletic woman","Looking for: Caring / Kind / Understanding",
+      "All that I ask is: That you’re honest","Worst idea / Most spontaneous thing I’ve done: Joining hinge",
+      "I'll fall for you if: You trip me (up)","Controversial opinion: Pineapple on pizza","I get overly competitive about: Everything",
+      "I know the best place in town: for brunch","Voice prompt feels cursed / cringe"
+    ],
+    reference: [
+      "The Office","Harry Potter","Game of Thrones","Breaking Bad","Marvel",
+      "Anime","Rick and Morty","Joe Rogan","Crypto / Stock"
+    ],
+    quote: [
+      "Love traveling","Looking for my passenger princess","Just ask","'I’m an open book","Bad texter",
+      "Let’s get to know each other","Partner in crime","Make me laugh","I’m not on here much","Add me on IG"
+    ],
+    food: [
+      "Tacos","Pizza","Beer","Sushi","Whiskey","Brunch","Coffee","Ramen","Spicy food",
+      "Boba","Tequila","KBBQ","Hotpot"
+    ],
+    sports: [
+      "Tennis","Pickleball","Football","Golf","Rock climbing","Hiking","Biking","Baseball"
+    ],
+    cliches: [
+      "Coffee is their personality","Writes an essay for a prompt","Someone in the room recognizes / knows him","Empty profile",
+      "Just moved here / New in town","Just got out of a long-term relationship","Raving","Photography","Extremely patronizing comments"
+    ],
+    other: [
+    ]
+  };
+
   const bingo = document.getElementById('bingo');
   const randomizeBtn = document.getElementById('randomizeBtn');
   const clearBtn = document.getElementById('clearBtn');
@@ -297,18 +379,49 @@
       }
     }
   }
+  
+    function getCategory(word) {
+    for (const category in words) {
+      if (words[category].includes(word)) return category;
+    }
+    return null;
+  }
 
-  function randomFill(){
-    if(words.length<gridSize*gridSize-1){ alert('Not enough words to fill the bingo card.'); return; }
-    const shuffled=shuffle(words); let idx=0;
+  // Flatten all words into a single array for random use
+  function allWords() {
+    return Object.values(words).flat();
+  }
+
+
+    function randomFill(){
+    const flatWords = allWords();
+    if(flatWords.length < gridSize*gridSize - 1){
+      alert('Not enough words to fill the bingo card.');
+      return;
+    }
+    const shuffled = shuffle(flatWords);
+    let idx = 0;
+
     for(let r=0;r<gridSize;r++){
       for(let c=0;c<gridSize;c++){
-        const cell=cells[r*gridSize+c];
-        if(r===2 && c===2){ cell.textContent='FREE'; cell.classList.add('free'); cell.dataset.marked='false'; cell.classList.remove('marked'); cell.style.backgroundColor='#a3d2ca'; }
-        else{ cell.textContent=shuffled[idx++]; cell.classList.remove('free'); cell.dataset.marked='false'; cell.classList.remove('marked'); cell.style.backgroundColor=''; }
+        const cell = cells[r*gridSize+c];
+        cell.className = "cell"; // reset classes
+
+        if(r===2 && c===2){
+          cell.textContent = 'FREE';
+          cell.classList.add('free');
+          cell.dataset.marked = 'false';
+        } else {
+          const word = shuffled[idx++];
+          const category = getCategory(word);
+          cell.textContent = word;
+          if (category) cell.classList.add(category);
+          cell.dataset.marked = 'false';
+        }
       }
     }
-    updateWordList(); updateWordCount();
+    updateWordList();
+    updateWordCount();
   }
 
   function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#A8DADC'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
@@ -364,10 +477,71 @@ function openWordSelector(cell){
   select.addEventListener('blur',()=>{ setTimeout(()=>commit(),100); });
 }
 
-  function updateWordList(){ wordListElement.innerHTML=''; words.forEach(w=>{ const li=document.createElement('li'); li.textContent=w; wordListElement.appendChild(li); }); }
-  function updateWordCount(){ wordCountDisplay.textContent=`Word list contains ${words.length} words.`; }
+   function updateWordList() {
+    wordListElement.innerHTML = '';
 
-  addWordBtn.addEventListener('click',()=>{ const val=newWordInput.value.trim(); if(!val) return; if(!words.includes(val)){ words.push(val); newWordInput.value=''; updateWordList(); updateWordCount(); } else{ alert('That word already exists in the list.'); } });
+    for (const category in words) {
+      const section = document.createElement('div');
+      section.classList.add('category-section');
+
+      const title = document.createElement('div');
+      title.classList.add('category-title');
+      title.textContent = category.toUpperCase();
+
+      // Match colors to cell classes
+      if (category === "bio") title.style.color = "#6A5ACD";
+      if (category === "picture") title.style.color = "#008080";
+      if (category === "prompt") title.style.color = "#FF7F50";
+      if (category === "reference") title.style.color = "#8B4513";
+      if (category === "quote") title.style.color = "#DC143C";
+      if (category === "food") title.style.color = "#228B22";
+      if (category === "sports") title.style.color = "#1E90FF";
+      if (category === "cliches") title.style.color = "#FF1493";
+
+      section.appendChild(title);
+
+      const ul = document.createElement('ul');
+      words[category].forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
+        ul.appendChild(li);
+      });
+
+      section.appendChild(ul);
+      wordListElement.appendChild(section);
+    }
+  }
+  
+  function updateWordCount() {
+    const totalWords = Object.values(words).reduce((sum, arr) => sum + arr.length, 0);
+    wordCountDisplay.textContent = `Word list contains ${totalWords} words.`;
+  }
+
+
+  addWordBtn.addEventListener('click', () => {
+    const val = newWordInput.value.trim();
+    const category = document.getElementById('newWordCategory').value;
+
+    if (!val) return alert("Please enter a word.");
+    if (!category) return alert("Please select a category.");
+
+    // Check if the word already exists in that category
+    if (words[category].includes(val)) {
+      return alert('That word already exists in this category.');
+    }
+
+    // Add the word to the selected category
+    words[category].push(val);
+
+    // Clear inputs
+    newWordInput.value = '';
+    document.getElementById('newWordCategory').value = '';
+
+    // Update the word list and count
+    updateWordList();
+    updateWordCount();
+  });
+
   manualFillToggle.addEventListener('change',(e)=>{ manualFillMode=e.target.checked; });
   randomizeBtn.addEventListener('click',()=>randomFill());
   clearBtn.addEventListener('click',()=>clearGrid());
