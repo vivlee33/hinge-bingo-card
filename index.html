@@ -57,7 +57,6 @@
     margin-right: auto;
   }
   
-  /* Remove bullets and add spacing */
   #wordListContainer ul {
     list-style-type: none;
     padding-left: 0;
@@ -238,7 +237,7 @@
   /* ========== Responsive adjustments ========== */
   @media (max-width: 480px) {
     .cell {
-      font-size: 10px;    /* reduce font on small screens */
+      font-size: 14px;    /* reduce font on small screens */
       padding: 2px;
     }
 
@@ -247,7 +246,7 @@
     }
 
     #controls label {
-      font-size: 10px;
+      font-size: 12px;
     }
 
     button {
@@ -347,7 +346,7 @@
       "Love language: Acts of service","Love language: Physical touch",
       "Looking for: Witty banter / Dark humor / Don’t take yourself too seriously / Sarcasm / Roast",
       "Looking for: Something serious / Long-term but open","Looking for: Athletic woman","Looking for: Caring / Kind / Understanding",
-      "All that I ask is: That you’re honest","Worst idea / Most spontaneous thing I’ve done: Joining hinge",
+      "All that I ask is: That you’re honest","Worst idea / Most spontaneous thing I’ve done: Joining Hinge",
       "I'll fall for you if: You trip me (up)","Controversial opinion: Pineapple on pizza","I get overly competitive about: Everything",
       "I know the best place in town: for brunch","Voice prompt feels cursed/cringe"
     ],
@@ -444,7 +443,21 @@
     updateWordCount();
   }
 
-  function clearGrid(){ cells.forEach(cell=>{ if(cell.classList.contains('free')){ cell.textContent='FREE'; cell.style.backgroundColor='#E99968'; } else{ cell.textContent=''; cell.style.backgroundColor=''; } cell.classList.remove('marked'); cell.dataset.marked='false'; }); }
+  function clearGrid() {
+    cells.forEach(cell => {
+      if (cell.classList.contains('free')) {
+        // Leave FREE space as-is
+        cell.classList.remove('marked');
+        cell.style.backgroundColor = '';
+        cell.dataset.marked = 'false';
+      } else {
+        // Just clear colors/marked state, keep text
+        cell.classList.remove('marked');
+        cell.style.backgroundColor = '';
+        cell.dataset.marked = 'false';
+      }
+    });
+  }
 
   function onCellClick(cell){
     if(manualFillMode){ if(cell.classList.contains('free')) return; openWordSelector(cell); return; }
@@ -482,20 +495,22 @@ function openWordSelector(cell){
     e.stopPropagation();
   });
 
-  function commit(){
-    const val = select.value.trim();
-    if(val){
-      // add to word list if not exists
-      const category = getCategory(val);
-      if(!category){
-        alert("Selected word doesn't belong to any category!");
-      }
-      cell.textContent = val;
-    } else {
-      cell.textContent = '';
+function commit() {
+  const val = select.value.trim();
+  cell.className = "cell"; // reset classes
+
+  if (val) {
+    const category = getCategory(val);
+    if (!category) {
+      alert("Selected word doesn't belong to any category!");
     }
-    cell.dataset.marked = 'false';
+    cell.textContent = val;
+    if (category) cell.classList.add(category); // 👈 add category color class
+  } else {
+    cell.textContent = '';
   }
+  cell.dataset.marked = 'false';
+}
 
   select.addEventListener('change',()=>{ commit(); });
   select.addEventListener('blur',()=>{ setTimeout(()=>commit(),100); });
