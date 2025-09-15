@@ -75,8 +75,8 @@
   #bingo {
     display: grid;
     grid-template-columns: repeat(5, 1fr); /* exactly 5 equal columns */
-    gap: 4px;
-    margin: 12px auto;
+    gap: 2px;
+    margin: 10px auto;
     justify-content: center;
     width: 100%;
     max-width: 500px;
@@ -98,7 +98,7 @@
     font-weight: bold;
     cursor: pointer;
     position: relative;
-    max-width: 150px;       /* max cell width */
+    max-width: 140px;       /* max cell width */
     box-sizing: border-box;
     height: auto;           /* allows height to grow with text */
     word-wrap: break-word;  /* wrap long words */
@@ -237,7 +237,7 @@
   /* ========== Responsive adjustments ========== */
   @media (max-width: 480px) {
     .cell {
-      font-size: 14px;    /* reduce font on small screens */
+      font-size: 12px;    /* reduce font on small screens */
       padding: 2px;
     }
 
