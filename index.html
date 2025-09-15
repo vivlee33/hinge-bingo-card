@@ -441,10 +441,13 @@ function openWordSelector(cell){
   empty.textContent='-- select word --';
   select.appendChild(empty);
 
-  words.forEach(w=>{
-    const opt=document.createElement('option');
-    opt.value=w;
-    opt.textContent=w;
+  // Flatten words into an array
+  const allWordsArray = Object.values(words).flat();
+
+  allWordsArray.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = w;
     select.appendChild(opt);
   });
 
@@ -460,17 +463,18 @@ function openWordSelector(cell){
   });
 
   function commit(){
-    const val=select.value.trim();
+    const val = select.value.trim();
     if(val){
-      if(!words.includes(val)){
-        words.push(val);
-        updateWordList();
+      // add to word list if not exists
+      const category = getCategory(val);
+      if(!category){
+        alert("Selected word doesn't belong to any category!");
       }
-      cell.textContent=val;
+      cell.textContent = val;
     } else {
-      cell.textContent='';
+      cell.textContent = '';
     }
-    cell.dataset.marked='false';
+    cell.dataset.marked = 'false';
   }
 
   select.addEventListener('change',()=>{ commit(); });
